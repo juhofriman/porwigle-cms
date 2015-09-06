@@ -1,10 +1,19 @@
-# another-porwigle
+![travis-build](https://travis-ci.org/juhofriman/porwigle-cms.svg?branch=master)
+# porwigle-cms
 
-A Clojure library designed to ... well, that part is up to you.
+It's simplistic cms inspired by frogcms. Work really much in progress.
 
 ## Usage
 
-FIXME
+Kick repl in and
+
+```
+user=> (create-tables)
+user=> (go)
+user=> (insert-page! {:urn "/" :parent nil :content "root content" :title "root"})
+```
+
+And you should see something at http://localhost:8081/
 
 ## License
 
