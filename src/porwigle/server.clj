@@ -7,7 +7,7 @@
   porwigle-request-handler
   [req]
   {:status  200
-   :headers {"Content-Type" "text/plain"}
+   :headers {"Content-Type" "text/html"}
    :body    (cond
              (= "/favicon.ico" (:uri req))
                nil

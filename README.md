@@ -10,7 +10,7 @@ Kick repl in and
 ```
 user=> (create-tables)
 user=> (go)
-user=> (insert-page! {:urn "/" :parent nil :content "root content" :title "root"})
+user=> (load-test-site)
 ```
 
 And you should see something at http://localhost:8081/

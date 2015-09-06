@@ -1,0 +1,29 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>{{title}}</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <!-- no stylesheet support yet
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+    -->
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+    <h1>Test site (title: {{title}})</h1>
+    <p>This is porwigle cms test site. Reload from repl by</p>
+    <pre>user=> (load-test-site)</pre>
+    <p>Here are subpages under this root</p>
+    <ul>
+        {{#children}}
+        <a href="{{urn}}"/><li>{{title}}</li></a>
+        {{/#children}}
+    </ul>
+</body>
+</html>
