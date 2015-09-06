@@ -7,6 +7,7 @@
                  [org.clojure/java.jdbc "0.4.1"]
                  [java-jdbc/dsl "0.1.3"]
                  [com.h2database/h2 "1.3.170"]
-                 [de.ubercode.clostache/clostache "1.4.0"]]
+                 [de.ubercode.clostache/clostache "1.4.0"]
+                 [http-kit "2.1.16"]]
   :profiles { :dev {:source-paths ["dev"]
                     :dependencies [[org.clojure/tools.namespace "0.2.4"]]}})
