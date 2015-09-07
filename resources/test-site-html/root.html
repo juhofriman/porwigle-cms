@@ -5,10 +5,22 @@
   <title>{{title}}</title>
   <meta name="description" content="The HTML5 Herald">
   <meta name="author" content="SitePoint">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-  <!-- no stylesheet support yet
-    <link rel="stylesheet" href="css/styles.css?v=1.0">
-    -->
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+  <style>
+     body {
+    }
+    .body-content {
+      padding: 15px 15px;
+    }
+  </style>
 
   <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,16 +28,18 @@
 </head>
 
 <body>
-    <h1>Test site (title: {{title}})</h1>
-    <p>This is porwigle cms test site. Reload from repl by</p>
-    <pre>user=> (load-test-site)</pre>
-    <p>Here are subpages under this root</p>
-    <ul>
+    <div class="body-content">
+      <h1>Test site (title: {{title}})</h1>
+      <p>This is porwigle cms test site. Reload from repl by</p>
+      <pre>user=> (load-test-site)</pre>
+      <p>Here are subpages under this root</p>
+      <ul>
         {{#children}}
         <a href="{{urn}}"/><li>{{title}}</li></a>
         {{/#children}}
-    </ul>
-    <p><small>This page was created: {{#created}}d.M.yyyy HH:MM{{/#created}} using dateformat</small></p>
-    <p><small>This page was created: {{created}} without dateformat</small></p>
+      </ul>
+      <p><small>This page was created: {{#created}}d.M.yyyy HH:MM{{/#created}} using dateformat</small></p>
+      <p><small>This page was created: {{created}} without dateformat</small></p>
+    </div>
 </body>
 </html>
