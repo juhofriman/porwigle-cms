@@ -19,7 +19,8 @@
                       [:urn "varchar(255) not null"]
                       [:parent "bigint references pages(id)"]
                       [:title "varchar(500) not null"]
-                      [:content "varchar(10000) not null"])))
+                      [:content "varchar(10000) not null"]
+                      [:created "timestamp not null default NOW()"])))
 (defn
   drop-tables
   []
@@ -82,7 +83,10 @@
   render-attrs-of-page
   [page]
   (-> (select-keys page [:title :children :parent_urn])
-      (assoc :children-sorted (sort-by :title (:children page)))))
+      (assoc :children-sorted (sort-by :title (:children page)))
+      (assoc :created (fn
+                        ([] (str (:created page)))
+                        ([dateformat] (.format (java.text.SimpleDateFormat. dateformat) (:created page)))))))
 
 (defn
   eval-page
