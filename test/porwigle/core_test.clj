@@ -58,12 +58,17 @@
 
       ; assert page structure is as expected
       (let [{children-of-root :children} (pagestructure "/")]
-        ; should have three children
+
+        ;should have three children
         (is (= 3 (count children-of-root)))
+
         ; assert all subpage titles can are found
         (is (< -1 (.indexOf (map :title children-of-root) "subpage 1")))
         (is (< -1 (.indexOf (map :title children-of-root) "subpage 2")))
-        (is (< -1 (.indexOf (map :title children-of-root) "subpage 3")))))))
+        (is (< -1 (.indexOf (map :title children-of-root) "subpage 3")))
+
+        ; every child must have / as parent urn
+        (is (every? (partial = "/") (map :parent_urn children-of-root)))))))
 
 
 

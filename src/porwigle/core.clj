@@ -44,9 +44,10 @@
 
 (defn
   build-structure
-  [{node-id :id :as node} unsortedpages]
+  [{node-id :id node-urn :urn :as node} unsortedpages]
   (assoc node :children
-    (map #(build-structure % unsortedpages) (get-children-for node-id unsortedpages))))
+    (map #(build-structure % unsortedpages)
+         (get-children-for node-id unsortedpages))))
 
 (defn
   get-node
@@ -66,7 +67,7 @@
   [urn]
   (let [unsortedpages
         (jdbc/query DB
-                    ["select * from pages"]
+                    ["select p.*, parent.urn as parent_urn from pages as p left join pages as parent on p.parent = parent.id"]
                     ; I would like to mark clob fields on vector
                     :row-fn (fn [rs]
                               (-> rs
@@ -80,7 +81,7 @@
 (defn
   render-attrs-of-page
   [page]
-  (-> (select-keys page [:title :children])
+  (-> (select-keys page [:title :children :parent_urn])
       (assoc :children-sorted (sort-by :title (:children page)))))
 
 (defn
