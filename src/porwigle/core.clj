@@ -14,24 +14,40 @@
   []
   (jdbc/db-do-commands
    DB
+   (ddl/create-table :templates
+                     [:id "bigint primary key auto_increment"]
+                     [:content "varchar(10000) not null"])
    (ddl/create-table :pages
                       [:id "bigint primary key auto_increment"]
                       [:urn "varchar(255) not null"]
                       [:parent "bigint references pages(id)"]
+                      [:id_template "bigint references templates(id)"]
                       [:title "varchar(500) not null"]
                       [:content "varchar(10000) not null"]
                       [:created "timestamp not null default NOW()"])))
+
 (defn
   drop-tables
   []
   (jdbc/db-do-commands
    DB
-   (ddl/drop-table :pages)))
+   (ddl/drop-table :pages)
+   (ddl/drop-table :templates)))
 
 (defn
   insert-page!
   [data]
   (first (vals (first (jdbc/insert! DB :pages data)))))
+
+(defn
+  insert-template!
+  [data]
+  (first (vals (first (jdbc/insert! DB :templates data)))))
+
+(defn
+  query-template
+  [template-id]
+  (first (jdbc/query DB ["SELECT * FROM templates WHERE id = ?" template-id])))
 
 (defn
   update-content!
@@ -89,9 +105,21 @@
                         ([dateformat] (.format (java.text.SimpleDateFormat. dateformat) (:created page)))))))
 
 (defn
+  create-template
+  [{id_template :id_template content :content} render-attrs]
+  (if (nil? id_template)
+    ; Page does not have a template, so content itself is template
+    content
+    ; Retrieve template and return content
+    (clostache/render
+     (:content (query-template id_template))
+     (assoc render-attrs :content content))))
+
+(defn
   eval-page
   [page]
-  (clostache/render (:content page) (render-attrs-of-page page)))
+  (let [render-attrs (render-attrs-of-page page)]
+    (clostache/render (create-template page render-attrs) render-attrs)))
 
 
 

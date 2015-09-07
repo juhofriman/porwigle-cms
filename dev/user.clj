@@ -51,15 +51,20 @@
   (do
     (drop-tables)
     (create-tables)
-    (let [root-id (insert-page! { :urn "/"
+    (let [bootstrap-template-id (insert-template! {:content (slurp-resource "test-site-html/bootstrap-template.html")})
+          plain-template-id (insert-template! {:content (slurp-resource "test-site-html/plain-template.html")})
+          root-id (insert-page! { :urn "/"
                                   :title "Root page"
+                                  :id_template bootstrap-template-id
                                   :content (slurp-resource "test-site-html/root.html")})]
 
       (insert-page! { :urn "/subpage1"
                       :parent root-id
+                      :id_template plain-template-id
                       :title "Subpage one"
                       :content (slurp-resource "test-site-html/subpage1.html")})
       (insert-page! { :urn "/subpage2"
                       :parent root-id
+                      :id_template plain-template-id
                       :title "Subpage 2"
                       :content (slurp-resource "test-site-html/subpage2.html")}))))

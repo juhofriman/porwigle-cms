@@ -71,6 +71,20 @@
         (is (every? (partial = "/") (map :parent_urn children-of-root)))))))
 
 
+(deftest porwigle-persistence-tests-render-with-template
+  ; insert template and page using that template
+  (let [template-id (insert-template! {:content "template {{content}} more template"})
+        page-id (insert-page! {:content "this is page content" :title "test" :urn "/" :id_template template-id})]
+
+    ; Oh yeah, it has an id
+    (is (not (nil? template-id)))
+    (is (not (nil? page-id)))
+
+    ; Now. Render and see the magic!
+    (is (= "template this is page content more template" (eval-page (pagestructure "/"))))))
+
+
+
 
 
 
