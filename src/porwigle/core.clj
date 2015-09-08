@@ -105,7 +105,7 @@
                         ([dateformat] (.format (java.text.SimpleDateFormat. dateformat) (:created page)))))))
 
 (defn
-  create-template
+  apply-template
   [{id_template :id_template content :content} render-attrs]
   (if (nil? id_template)
     ; Page does not have a template, so content itself is template
@@ -119,7 +119,7 @@
   eval-page
   [page]
   (let [render-attrs (render-attrs-of-page page)]
-    (clostache/render (create-template page render-attrs) render-attrs)))
+    (clostache/render (apply-template page render-attrs) render-attrs)))
 
 
 
