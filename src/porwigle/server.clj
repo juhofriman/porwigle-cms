@@ -1,18 +1,41 @@
 (ns porwigle.server
   (:gen-class)
   (:require [org.httpkit.server :as srv]
+            [clojure.data.json :as json]
             [porwigle.core :as porwigle]))
+
+(defn my-value-reader [key value]
+  (if (= (class value) java.sql.Timestamp)
+    (.format (java.text.SimpleDateFormat. "d.M.yyyy HH:MM") value)
+    value))
+
+(defn
+  handle-api-call
+  [requri]
+  (cond
+   (.endsWith requri "_api/structure")
+     {:status  200
+      :headers {"Content-Type" "application/json"}
+      :body (json/write-str (porwigle/pagestructure "/")
+                            :value-fn my-value-reader)}
+   (.endsWith requri "_api/templates")
+     {:status  200
+      :headers {"Content-Type" "application/json"}
+      :body (json/write-str (porwigle/templates)
+                            :value-fn my-value-reader)}))
 
 (defn
   porwigle-request-handler
-  [req]
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    (cond
-             (= "/favicon.ico" (:uri req))
-               nil
-             :default
-               (porwigle/eval-page (porwigle/pagestructure (:uri req))))})
+  [{requri :uri :as req}]
+  (cond
+   (= "/favicon.ico" requri)
+     nil
+   (.startsWith requri "/_api")
+     (handle-api-call requri)
+    :default
+     {:status  200
+      :headers {"Content-Type" "text/html"}
+      :body (porwigle/eval-page (porwigle/pagestructure requri))}))
 
 (defn
   start-porwigle

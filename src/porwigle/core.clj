@@ -45,6 +45,11 @@
   (first (vals (first (jdbc/insert! DB :templates data)))))
 
 (defn
+  templates
+  []
+  (jdbc/query DB ["SELECT * FROM templates"]))
+
+(defn
   query-template
   [template-id]
   (first (jdbc/query DB ["SELECT * FROM templates WHERE id = ?" template-id])))
