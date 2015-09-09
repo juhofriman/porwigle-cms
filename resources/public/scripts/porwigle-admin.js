@@ -1,37 +1,93 @@
+// Really really simple publish-subscribe module
+// TODO: separate and test
+var pubsub = (function() {
+  var events = {};
+
+  return {
+    subscribe: function(id, listener) {
+      if(events[id] == null) {
+        events[id] = [listener];
+      } else {
+        events[id].push(listener);
+      }
+      console.log("Added listener to " + id + " has " + events[id].length + " listeners");
+    },
+    publish: function(id, data) {
+      if(events[id] == null) {
+        console.log("No listeners for " + id);
+      }
+      for(i = 0; i < events[id].length; i++) {
+        events[id][i](data);
+      }
+    }
+  };
+})();
+
 var PorwigleNode = React.createClass({
+  handleClick: function() {
+    pubsub.publish("OPEN_PAGE", this.props.node);
+  },
   render: function() {
-    console.log(this.props);
     var parentLevel = this.props.level;
-    children = this.props.children.map(function (node) {
+    children = this.props.node.children.map(function (node) {
       return (
-        <PorwigleNode level={parentLevel+1} title={node.title} children={node.children}></PorwigleNode>
+        <PorwigleNode key={node.id} level={parentLevel+1} node={node}></PorwigleNode>
       );
     });
 
-    var style = {
-      marginLeft: this.props.level + "em"
-    };
+    var classes = "porwigle-node " + (this.props.level == 0 ? "root" : "");
 
     return (
-      <div style={style}>{this.props.title}
-      <div>{children}</div>
+      <div className={classes}>
+        <span className="porwigle-node-title" onClick={this.handleClick}>{this.props.node.title}</span>
+        <div>{children}</div>
       </div>
     );
   }
 });
 
 var PorwigleStructure = React.createClass({
+  render: function() {
+    return (
+      <div className="panel panel-default porwigle-pagestructure">
+        <div className="panel-heading">
+          <h3 className="panel-title">Page structure</h3>
+        </div>
+        <div className="panel-body">
+          <PorwigleNode level={0} node={this.props.root}></PorwigleNode>
+        </div>
+      </div>
+    );
+  }
+});
+
+var PorwigleEditor = React.createClass({
+    render: function() {
+      var content = this.props.openedPage == null ? "" : this.props.openedPage.content;
+      return (
+        <div>
+        <textarea className="form-control" rows="50" cols="50" value={content}></textarea>
+        </div>
+      );
+    }
+});
+
+var Porwigle = React.createClass({
   getInitialState: function() {
     return {data: {children: []}};
   },
+  openPage: function(page) {
+    this.setState(React.addons.update(this.state, {openedPage: {$set: page}}));
+  },
   componentDidMount: function() {
+    pubsub.subscribe("OPEN_PAGE", this.openPage);
+
     $.ajax({
       url: 'http://localhost:8081/_api/structure',
       dataType: 'json',
       cache: false,
       success: function(data) {
-        console.log(data);
-        this.setState({data: data});
+        this.setState({data: data, openedPage: null});
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -40,15 +96,22 @@ var PorwigleStructure = React.createClass({
   },
   render: function() {
     return (
-      <div>
-        <h1>Page Structure</h1>
-        <PorwigleNode level={0} title={this.state.data.title} children={this.state.data.children}></PorwigleNode>
+    <div className="row porwigle-workspace">
+      <div className="col-md-3"><PorwigleStructure root={this.state.data}/></div>
+      <div className="col-md-7">
+        <PorwigleEditor openedPage={this.state.openedPage}/>
       </div>
+    </div>
     );
   }
 });
 
 React.render(
-  <PorwigleStructure/>,
+  <div>
+    <div className="row">
+      <div className="col-md-12"><h1>Porwigle</h1></div>
+    </div>
+    <Porwigle/>
+  </div>,
   document.getElementById('container')
 );

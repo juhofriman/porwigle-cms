@@ -7,10 +7,44 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.0/JSXTransformer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <style>
+        body {
+            padding:1em;
+        }
+        .porwigle-workspace {
+            border:1px solid #ccc;
+            border-radius: 10px;
+        }
+        .porwigle-pagestructure {
+            margin-top:1.8em;
+        }
+        .porwigle-node {
+            margin-left:1em;
+        }
+        .porwigle-node.root {
+            margin-left:0em;
+        }
+        .porwigle-node-title {
+            font-style:normal;
+        }
+        .porwigle-node-title:hover {
+            font-style:italic;
+            cursor:pointer;
+        }
+
+    </style>
   </head>
   <body>
-    <div id="container"></div>
+    <div id="container" class="container"></div>
     <script type="text/jsx;harmony=true" src="scripts/porwigle-admin.js"></script>
   </body>
 </html>
