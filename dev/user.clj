@@ -67,4 +67,9 @@
                       :parent root-id
                       :id_template plain-template-id
                       :title "Subpage 2"
-                      :content (slurp-resource "test-site-html/subpage2.html")}))))
+                      :content (slurp-resource "test-site-html/subpage2.html")})
+      (insert-page! { :urn "/subpage3"
+                      :parent root-id
+                      :id_template bootstrap-template-id
+                      :title "Subpage 3"
+                      :content (slurp-resource "test-site-html/subpage3.html")}))))

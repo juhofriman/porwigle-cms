@@ -9,7 +9,9 @@
     (if
       (clojure.string/blank? pagebody)
       {:status 404
+       :headers {"Content-Type" "text/html; charset=utf-8"}
        :body nil}
 
       {:status 200
+       :headers {"Content-Type" "text/html; charset=utf-8"}
        :body pagebody})))

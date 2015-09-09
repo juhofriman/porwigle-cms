@@ -17,7 +17,8 @@
     {:status 200
      :body (json/write-str pagestructure
                            :value-fn json-value-reader)
-     :headers {"Content-type" "application/json"}}))
+     :headers {"Content-type" "application/json"
+               "Access-Control-Allow-Origin" "*"}}))
 
 (defn
   get-templates
@@ -27,13 +28,3 @@
      :body (json/write-str templates
                            :value-fn json-value-reader)
      :headers {"Content-type" "application/json"}}))
-
-(defn
-  handle-request
-  [{uri :uri}]
-  (cond
-   (.endsWith uri "structure")
-     (get-pagestructure)
-   (.endsWith uri "templates")
-     (get-templates)
-   :default (throw (RuntimeException. "No matching clause"))))

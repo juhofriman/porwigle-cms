@@ -32,7 +32,7 @@
 
     (testing "Request to _api/structure should render page structure in json"
 
-      (let [response (handle-request {:uri "_api/structure"})]
+      (let [response (get-pagestructure)]
         ; Just assert body is json parseable
         (is (-> (read-json (:body response))
                 nil?
@@ -44,7 +44,7 @@
 
     (testing "Request to _api/templates should render templates in json"
 
-      (let [response (handle-request {:uri "_api/templates"})]
+      (let [response (get-templates)]
         ; Just assert body is json parseable
         (is (-> (read-json (:body response))
                 nil?

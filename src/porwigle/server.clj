@@ -1,20 +1,17 @@
 (ns porwigle.server
   (:gen-class)
   (:require [org.httpkit.server :as srv]
-            [clojure.data.json :as json]
+            [compojure.route :as route]
+            [compojure.handler :as compojure-handler] ; form, query params decode; cookie; session, etc
+            [compojure.core :as compojure]
             [porwigle.handler.api :as api]
             [porwigle.handler.public :as public]))
 
-(defn
-  porwigle-request-handler
-  [{requri :uri :as req}]
-  (cond
-   (= "/favicon.ico" requri)
-     nil
-   (.startsWith requri "/_api")
-     (api/handle-request req)
-    :default
-     (public/handle-request req)))
+(compojure/defroutes all-routes
+  (route/resources "/admin")
+  (compojure/GET "/_api/structure" [] (api/get-pagestructure))
+  (compojure/GET "/_api/templates" [] (api/get-templates))
+  (compojure/GET "/*" request (public/handle-request request)))
 
 (defn
   start-porwigle
@@ -24,7 +21,7 @@
       porwigle-instance
       :server
       (srv/run-server
-       (:handler porwigle-instance)
+       (compojure-handler/site #'all-routes)
        {:port (:port porwigle-instance) }))))
 
 (defn
@@ -39,6 +36,6 @@
   porwigle-instance
   "Returns a new instance of the porwigle-cms"
   []
-  { :handler porwigle-request-handler
+  {
     :port 8081
     :server nil })
