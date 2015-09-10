@@ -29,17 +29,21 @@ var PorwigleNode = React.createClass({
   },
   render: function() {
     var parentLevel = this.props.level;
+    var marked = this.props.marked;
     children = this.props.node.children.map(function (node) {
       return (
-        <PorwigleNode key={node.id} level={parentLevel+1} node={node}></PorwigleNode>
+        <PorwigleNode key={node.id} level={parentLevel+1} node={node} marked={marked}></PorwigleNode>
       );
     });
 
-    var classes = "porwigle-node " + (this.props.level == 0 ? "root" : "");
+    var classes = "porwigle-node" +
+        (this.props.level == 0 ? " root" : "");
+    var titleClasses = "porwigle-node-title" +
+        (this.props.marked == this.props.node.id ? " marked" : "");
 
     return (
       <div className={classes}>
-        <span className="porwigle-node-title" onClick={this.handleClick}>{this.props.node.title}</span>
+        <span className={titleClasses} onClick={this.handleClick}>{this.props.node.title}</span>
         <div>{children}</div>
       </div>
     );
@@ -49,24 +53,51 @@ var PorwigleNode = React.createClass({
 var PorwigleStructure = React.createClass({
   render: function() {
     return (
-      <div className="panel panel-default porwigle-pagestructure">
-        <div className="panel-heading">
-          <h3 className="panel-title">Page structure</h3>
-        </div>
-        <div className="panel-body">
-          <PorwigleNode level={0} node={this.props.root}></PorwigleNode>
-        </div>
-      </div>
+      <PorwigleNode level={0} node={this.props.root} marked={this.props.markednode}></PorwigleNode>
     );
   }
 });
 
 var PorwigleEditor = React.createClass({
     render: function() {
-      var content = this.props.openedPage == null ? "" : this.props.openedPage.content;
+      if(!this.props.page) {
+        return (<div className="alert alert-info">
+                  <strong>G'day!!</strong> Open page from left to edit your site like there is no tomorrow.
+                </div>);
+      }
       return (
         <div>
-        <textarea className="form-control" rows="50" cols="50" value={content}></textarea>
+          <ul className="nav nav-tabs" role="tablist">
+            <li role="presentation" className="active"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">Content</a></li>
+            <li role="presentation"><a href="#fields" aria-controls="fields" role="tab" data-toggle="tab">Fields</a></li>
+          </ul>
+          <div className="tab-content">
+            <div role="tabpanel" className="tab-pane active" id="content">
+              <p>This is content in this page.</p>
+              <form role="form">
+                <div className="form-group">
+                    <textarea className="form-control" rows="20" cols="50" value={this.props.page.content}></textarea>
+                </div>
+              </form>
+            </div>
+            <div role="tabpanel" className="tab-pane" id="fields">
+              <p>These are fields registered to this page.</p>
+              <form role="form">
+                <div className="form-group">
+                  <div className="input-group">
+                    <span className="input-group-addon" id="uri">Title</span>
+                    <input type="text" className="form-control" value={this.props.page.title} aria-describedby="uri"/>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <div className="input-group">
+                    <span className="input-group-addon" id="uri">URI</span>
+                    <input type="text" className="form-control" value={this.props.page.urn} aria-describedby="uri"/>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       );
     }
@@ -95,13 +126,41 @@ var Porwigle = React.createClass({
     });
   },
   render: function() {
+    var markedNodeId = this.state.openedPage != null ? this.state.openedPage.id : null;
     return (
-    <div className="row porwigle-workspace">
-      <div className="col-md-3"><PorwigleStructure root={this.state.data}/></div>
-      <div className="col-md-7">
-        <PorwigleEditor openedPage={this.state.openedPage}/>
+      <div className="row porwigle-workspace">
+        <div className="col-md-3">
+          <div className="panel panel-default porwigle-pagestructure">
+            <div className="panel-heading">
+              <h3 className="panel-title">Page structure</h3>
+            </div>
+            <div className="panel-body">
+              <PorwigleStructure root={this.state.data}
+                markednode={markedNodeId}/>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-7">
+          <div className="panel panel-default porwigle-editor">
+            <div className="panel-heading">
+              <h3 className="panel-title">Editor</h3>
+            </div>
+            <div className="panel-body">
+              <PorwigleEditor page={this.state.openedPage}/>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-2">
+          <div className="panel panel-default porwigle-infozone">
+            <div className="panel-heading">
+              <h3 className="panel-title">Infozone</h3>
+            </div>
+            <div className="panel-body">
+              <p>Here you find hints how to use this fine fine fine content management system.</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
     );
   }
 });
