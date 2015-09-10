@@ -251,7 +251,7 @@ var Porwigle = React.createClass({
 React.render(
   <div>
     <div className="row">
-      <div className="col-md-12"><h1>Porwigle</h1></div>
+  <div className="col-md-12"><h1>(:cms porwigle)</h1></div>
     </div>
     <Porwigle/>
   </div>,
