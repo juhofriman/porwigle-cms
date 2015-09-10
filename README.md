@@ -8,12 +8,12 @@ It's simplistic cms inspired by frogcms. Work really much in progress.
 Kick repl in and
 
 ```
-user=> (create-tables)
-user=> (go)
 user=> (load-test-site)
+user=> (go)
 ```
 
 And you should see something at http://localhost:8081/
+Admin ui is at http://localhost:8081/admin/index.html
 
 ## License
 

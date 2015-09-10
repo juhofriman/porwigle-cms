@@ -1,5 +1,7 @@
 (ns user
   (require [clojure.tools.namespace.repl :refer [refresh refresh-all]])
+  (require [porwigle.db.schema :as schema])
+  (require [porwigle.db.operations :as db-operations])
   (require [porwigle.core :refer :all])
   (require [porwigle.server :as server])
   (require [clojure.java.io :as io]))
@@ -49,28 +51,28 @@
   load-test-site
   []
   (do
-    (drop-tables)
-    (create-tables)
-    (let [bootstrap-template-id (insert-template! {:content (slurp-resource "test-site-html/bootstrap-template.html")
+    (try (schema/drop-tables) (catch Exception e)) ; tables did not exist
+    (schema/create-tables)
+    (let [bootstrap-template-id (db-operations/insert-template! {:content (slurp-resource "test-site-html/bootstrap-template.html")
                                                    :title "bootstrap template"})
-          plain-template-id (insert-template! {:content (slurp-resource "test-site-html/plain-template.html")
+          plain-template-id (db-operations/insert-template! {:content (slurp-resource "test-site-html/plain-template.html")
                                                :title "plain template"})
-          root-id (insert-page! { :urn "/"
+          root-id (db-operations/insert-page! { :urn "/"
                                   :title "Root page"
                                   :id_template bootstrap-template-id
                                   :content (slurp-resource "test-site-html/root.html")})]
 
-      (insert-page! { :urn "/subpage1"
+      (db-operations/insert-page! { :urn "/subpage1"
                       :parent root-id
                       :id_template plain-template-id
                       :title "Subpage one"
                       :content (slurp-resource "test-site-html/subpage1.html")})
-      (insert-page! { :urn "/subpage2"
+      (db-operations/insert-page! { :urn "/subpage2"
                       :parent root-id
                       :id_template plain-template-id
                       :title "Subpage 2"
                       :content (slurp-resource "test-site-html/subpage2.html")})
-      (insert-page! { :urn "/subpage3"
+      (db-operations/insert-page! { :urn "/subpage3"
                       :parent root-id
                       :id_template bootstrap-template-id
                       :title "Subpage 3"

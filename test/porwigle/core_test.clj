@@ -1,6 +1,8 @@
 (ns porwigle.core-test
   (:require [clojure.test :refer :all]
-            [porwigle.core :refer :all]))
+            [porwigle.core :refer :all]
+            [porwigle.db.operations :as db-operations]
+            [porwigle.db.schema :as schema]))
 
 ;; It seems quite hard to set up h2 in in-memory database during test
 ;; because once created tables it's gone
@@ -12,10 +14,10 @@
 ; each test creates tables and drops them
 ; this fixture also redefs db connection params
 (defn db-test-fixture [f]
-  (with-redefs [DB TEST-DB]
-    (create-tables)
+  (with-redefs [schema/DB TEST-DB]
+    (schema/create-tables)
     (f)
-    (drop-tables)))
+    (schema/drop-tables)))
 
 (use-fixtures :each db-test-fixture)
 
@@ -23,7 +25,7 @@
   (testing "when inserting and getting root field are as expected"
     (do
       ; Insert something to root
-      (insert-page! {:content "content" :title "my root title" :urn "/"})
+      (db-operations/insert-page! {:content "content" :title "my root title" :urn "/"})
 
       ; Assert page structure fields are as expected
       (let [{saved-title   :title
@@ -38,9 +40,9 @@
   (testing "updating content"
 
     (let [; insert page
-          id (insert-page! {:content "original content" :title "my root title" :urn "/"})
+          id (db-operations/insert-page! {:content "original content" :title "my root title" :urn "/"})
           ; update with given id
-          u (update-content! id "updated content")
+          u (db-operations/update-content! id "updated content")
           ; retrieve page
           {updated-content :content} (pagestructure "/")]
 
@@ -49,12 +51,12 @@
 
 (deftest porwigle-persistence-tests-get-pagestructure
   ; insert root
-  (let [root-id (insert-page! {:content "content" :title "my root title" :urn "/"})]
+  (let [root-id (db-operations/insert-page! {:content "content" :title "my root title" :urn "/"})]
     (do
       ; insert some children to root
-      (insert-page! {:content "content" :title "subpage 1" :urn "/sub" :parent root-id})
-      (insert-page! {:content "content" :title "subpage 2" :urn "/sub2" :parent root-id})
-      (insert-page! {:content "content" :title "subpage 3" :urn "/sub3" :parent root-id})
+      (db-operations/insert-page! {:content "content" :title "subpage 1" :urn "/sub" :parent root-id})
+      (db-operations/insert-page! {:content "content" :title "subpage 2" :urn "/sub2" :parent root-id})
+      (db-operations/insert-page! {:content "content" :title "subpage 3" :urn "/sub3" :parent root-id})
 
       ; assert page structure is as expected
       (let [{children-of-root :children} (pagestructure "/")]
@@ -73,8 +75,8 @@
 
 (deftest porwigle-persistence-tests-render-with-template
   ; insert template and page using that template
-  (let [template-id (insert-template! {:content "template {{content}} more template" :title "template"})
-        page-id (insert-page! {:content "this is page content" :title "test" :urn "/" :id_template template-id})]
+  (let [template-id (db-operations/insert-template! {:content "template {{content}} more template" :title "template"})
+        page-id (db-operations/insert-page! {:content "this is page content" :title "test" :urn "/" :id_template template-id})]
 
     ; Oh yeah, it has an id
     (is (not (nil? template-id)))

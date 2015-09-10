@@ -28,7 +28,7 @@
 
   ; redef core functions dependent on
   (with-redefs [porwigle.core/pagestructure dummy-pagestructure
-                porwigle.core/templates dummy-templates]
+                porwigle.db.operations/templates dummy-templates]
 
     (testing "Request to _api/structure should render page structure in json"
 

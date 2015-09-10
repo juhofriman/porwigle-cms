@@ -1,6 +1,7 @@
 (ns porwigle.handler.api
   (:gen-class)
   (require [porwigle.core :as porwigle]
+           [porwigle.db.operations :as db-operations]
            [clojure.data.json :as json]))
 
 (defn
@@ -23,7 +24,7 @@
 (defn
   get-templates
   []
-  (let [templates (porwigle/templates)]
+  (let [templates (db-operations/templates)]
     {:status 200
      :body (json/write-str templates
                            :value-fn json-value-reader)
