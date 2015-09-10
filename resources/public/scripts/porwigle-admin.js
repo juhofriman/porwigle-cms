@@ -14,7 +14,8 @@ var pubsub = (function() {
     },
     publish: function(id, data) {
       if(events[id] == null) {
-        console.log("No listeners for " + id);
+        console.warn("No listeners for " + id);
+        return;
       }
       for(i = 0; i < events[id].length; i++) {
         events[id][i](data);
@@ -23,7 +24,38 @@ var pubsub = (function() {
   };
 })();
 
-var PorwigleNode = React.createClass({
+var PorwigleTemplateOpener = React.createClass({
+  handleClick: function() {
+    pubsub.publish("OPEN_TEMPLATE", this.props.template);
+  },
+  render: function() {
+    var titleClasses = "porwigle-clickable-title" +
+        (this.props.marked ? " marked" : "");
+    return (
+      <div className="porwigle-clickable">
+        <span className={titleClasses} onClick={this.handleClick}>{this.props.template.title}</span>
+      </div>
+    );
+  }
+});
+var PorwigleTemplates = React.createClass({
+
+  render: function() {
+    var markedTemplate = this.props.markedTemplate;
+    var templates = this.props.templates.map(function(template) {
+      return (
+        <PorwigleTemplateOpener marked={markedTemplate === template.id} key={template.id} template={template}/>
+      );
+    });
+    return (
+      <div>
+        {templates}
+      </div>
+    );
+  }
+});
+
+var PorwiglePageOpener = React.createClass({
   handleClick: function() {
     pubsub.publish("OPEN_PAGE", this.props.node);
   },
@@ -32,13 +64,13 @@ var PorwigleNode = React.createClass({
     var marked = this.props.marked;
     children = this.props.node.children.map(function (node) {
       return (
-        <PorwigleNode key={node.id} level={parentLevel+1} node={node} marked={marked}></PorwigleNode>
+        <PorwiglePageOpener key={node.id} level={parentLevel+1} node={node} marked={marked}></PorwiglePageOpener>
       );
     });
 
-    var classes = "porwigle-node" +
+    var classes = "porwigle-clickable" +
         (this.props.level == 0 ? " root" : "");
-    var titleClasses = "porwigle-node-title" +
+    var titleClasses = "porwigle-clickable-title" +
         (this.props.marked == this.props.node.id ? " marked" : "");
 
     return (
@@ -53,17 +85,39 @@ var PorwigleNode = React.createClass({
 var PorwigleStructure = React.createClass({
   render: function() {
     return (
-      <PorwigleNode level={0} node={this.props.root} marked={this.props.markednode}></PorwigleNode>
+      <PorwiglePageOpener level={0} node={this.props.root} marked={this.props.markednode}></PorwiglePageOpener>
     );
   }
 });
 
-var PorwigleEditor = React.createClass({
+var PorwigleTemplateEditor = React.createClass({
+  render: function() {
+      if(!this.props.template) {
+        return (<div></div>);
+      }
+      return (
+        <div>
+          <p>This is content in this template.</p>
+          <form role="form">
+            <div className="form-group">
+                <div className="input-group">
+                  <span className="input-group-addon" id="uri">Title</span>
+                  <input type="text" className="form-control" value={this.props.template.title} aria-describedby="uri"/>
+                </div>
+            </div>
+            <div className="form-group">
+              <textarea className="form-control" rows="20" cols="50" value={this.props.template.content}></textarea>
+            </div>
+          </form>
+        </div>
+      );
+  }
+});
+
+var PorwiglePageEditor = React.createClass({
     render: function() {
       if(!this.props.page) {
-        return (<div className="alert alert-info">
-                  <strong>G'day!!</strong> Open page from left to edit your site like there is no tomorrow.
-                </div>);
+        return (<div></div>);
       }
       return (
         <div>
@@ -105,20 +159,39 @@ var PorwigleEditor = React.createClass({
 
 var Porwigle = React.createClass({
   getInitialState: function() {
-    return {data: {children: []}};
+    return {data: { children: []}, templates: []};
   },
   openPage: function(page) {
-    this.setState(React.addons.update(this.state, {openedPage: {$set: page}}));
+    this.setState(React.addons.update(this.state,
+                                      {openedPage: {$set: page},
+                                       openedTemplate: {$set: null}}));
+  },
+  openTemplate: function(template) {
+    this.setState(React.addons.update(this.state,
+                                      {openedPage: {$set: null},
+                                       openedTemplate: {$set: template}}));
   },
   componentDidMount: function() {
     pubsub.subscribe("OPEN_PAGE", this.openPage);
-
+    pubsub.subscribe("OPEN_TEMPLATE", this.openTemplate);
     $.ajax({
       url: 'http://localhost:8081/_api/structure',
       dataType: 'json',
       cache: false,
       success: function(data) {
-        this.setState({data: data, openedPage: null});
+        this.setState(React.addons.update(this.state, {data: {$set: data}}));
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+
+    $.ajax({
+      url: 'http://localhost:8081/_api/templates',
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState(React.addons.update(this.state, {templates: {$set: data}}));
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -127,9 +200,18 @@ var Porwigle = React.createClass({
   },
   render: function() {
     var markedNodeId = this.state.openedPage != null ? this.state.openedPage.id : null;
+    var markedTemplateId = this.state.openedTemplate != null ? this.state.openedTemplate.id : null;
     return (
       <div className="row porwigle-workspace">
         <div className="col-md-3">
+          <div className="panel panel-default porwigle-templates">
+            <div className="panel-heading">
+              <h3 className="panel-title">Templates</h3>
+            </div>
+            <div className="panel-body">
+              <PorwigleTemplates templates={this.state.templates} markedTemplate={markedTemplateId}/>
+            </div>
+          </div>
           <div className="panel panel-default porwigle-pagestructure">
             <div className="panel-heading">
               <h3 className="panel-title">Page structure</h3>
@@ -146,7 +228,8 @@ var Porwigle = React.createClass({
               <h3 className="panel-title">Editor</h3>
             </div>
             <div className="panel-body">
-              <PorwigleEditor page={this.state.openedPage}/>
+              <PorwigleTemplateEditor template={this.state.openedTemplate}/>
+              <PorwiglePageEditor page={this.state.openedPage}/>
             </div>
           </div>
         </div>

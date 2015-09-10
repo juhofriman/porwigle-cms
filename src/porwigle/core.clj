@@ -16,6 +16,7 @@
    DB
    (ddl/create-table :templates
                      [:id "bigint primary key auto_increment"]
+                     [:title "varchar(500) not null"]
                      [:content "varchar(10000) not null"])
    (ddl/create-table :pages
                       [:id "bigint primary key auto_increment"]

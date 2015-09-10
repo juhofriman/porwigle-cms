@@ -73,7 +73,7 @@
 
 (deftest porwigle-persistence-tests-render-with-template
   ; insert template and page using that template
-  (let [template-id (insert-template! {:content "template {{content}} more template"})
+  (let [template-id (insert-template! {:content "template {{content}} more template" :title "template"})
         page-id (insert-page! {:content "this is page content" :title "test" :urn "/" :id_template template-id})]
 
     ; Oh yeah, it has an id
