@@ -49,14 +49,15 @@
 
 (defn
   apply-template
-  [{id_template :id_template content :content} render-attrs]
-  (if (nil? id_template)
-    ; Page does not have a template, so content itself is template
-    content
-    ; Retrieve template and return content
-    (clostache/render
-     (:content (db-operations/query-template id_template))
-     (assoc render-attrs :content content))))
+  [{id_template :id_template content-fn :content-fn} render-attrs]
+  (let [content (content-fn)]
+    (if (nil? id_template)
+      ; Page does not have a template, so content itself is template
+      content
+      ; Retrieve template and return content
+      (clostache/render
+       (:content (db-operations/query-template id_template))
+       (assoc render-attrs :content content)))))
 
 (defn
   eval-page

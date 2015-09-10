@@ -12,6 +12,11 @@
       (apply str (line-seq rdr)))))
 
 (defn
+  get-content
+  [page-id]
+  (first (jdbc/query DB ["SELECT * FROM page_content WHERE id_page = ?" page-id])))
+
+(defn
   query-pages
   []
   (jdbc/query DB
@@ -20,11 +25,19 @@
               :row-fn (fn [rs]
                         (-> rs
                             (assoc :title (clob-to-string (:title rs)))
-                            (assoc :content (clob-to-string (:content rs)))))))
+                            (assoc :content-fn (fn [] (:content (get-content (:id rs)))))))))
 (defn
   insert-page!
-  [data]
-  (first (vals (first (jdbc/insert! DB :pages data)))))
+  [{content :content :as data}]
+  (jdbc/with-db-transaction [trans-conn DB]
+    ; Insert page
+    (let [page-id (-> (jdbc/insert! trans-conn :pages (dissoc data :content))
+                      first
+                      vals
+                      first)]
+      ; insert page contents or empty
+      (jdbc/insert! trans-conn :page_content {:id_page page-id :content (or content "")})
+      page-id)))
 
 (defn
   insert-template!
@@ -41,7 +54,8 @@
   [template-id]
   (first (jdbc/query DB ["SELECT * FROM templates WHERE id = ?" template-id])))
 
+
 (defn
   update-content!
   [id content]
-  (jdbc/update! DB :pages {:content content} ["id = ?" id]))
+  (jdbc/update! DB :page_content {:content content} ["id_page = ?" id]))

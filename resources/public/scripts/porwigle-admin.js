@@ -130,7 +130,7 @@ var PorwiglePageEditor = React.createClass({
               <p>This is content in this page.</p>
               <form role="form">
                 <div className="form-group">
-                    <textarea className="form-control" rows="20" cols="50" value={this.props.page.content}></textarea>
+                    <textarea className="form-control" rows="20" cols="50" value={this.props.content}></textarea>
                 </div>
               </form>
             </div>
@@ -162,9 +162,21 @@ var Porwigle = React.createClass({
     return {data: { children: []}, templates: []};
   },
   openPage: function(page) {
-    this.setState(React.addons.update(this.state,
-                                      {openedPage: {$set: page},
-                                       openedTemplate: {$set: null}}));
+    $.ajax({
+      url: 'http://localhost:8081/_api/content/' + page.id,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState(React.addons.update(this.state,
+                                          {openedPage: {$set: page},
+                                           openedTemplate: {$set: null},
+                                           content: {$set: data.content}}));
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+
   },
   openTemplate: function(template) {
     this.setState(React.addons.update(this.state,
@@ -229,7 +241,7 @@ var Porwigle = React.createClass({
             </div>
             <div className="panel-body">
               <PorwigleTemplateEditor template={this.state.openedTemplate}/>
-              <PorwiglePageEditor page={this.state.openedPage}/>
+              <PorwiglePageEditor page={this.state.openedPage} content={this.state.content}/>
             </div>
           </div>
         </div>

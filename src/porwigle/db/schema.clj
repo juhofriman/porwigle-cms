@@ -22,13 +22,16 @@
                      [:parent "bigint references pages(id)"]
                      [:id_template "bigint references templates(id)"]
                      [:title "varchar(500) not null"]
-                     [:content "varchar(10000) not null"]
-                     [:created "timestamp not null default NOW()"])))
+                     [:created "timestamp not null default NOW()"])
+   (ddl/create-table :page_content
+                     [:id_page "bigint references pages(id)"]
+                     [:content "varchar(10000) not null"])))
 
 (defn
   drop-tables
   []
   (jdbc/db-do-commands
    DB
+   (ddl/drop-table :page_content)
    (ddl/drop-table :pages)
    (ddl/drop-table :templates)))

@@ -24,4 +24,7 @@
   (testing "after inserting page to empty db one is expected when queried"
     (do
       (insert-page! {:urn "/" :title "template" :content "content"})
-      (is (= 1 (count (query-pages)))))))
+      (let [pages (query-pages) page (first pages)]
+        (is (= 1 (count pages)))
+        (is (fn? (:content-fn page)))
+        (is (= "content" ((:content-fn page))))))))

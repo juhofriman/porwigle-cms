@@ -29,11 +29,11 @@
 
       ; Assert page structure fields are as expected
       (let [{saved-title   :title
-             saved-content :content
-             saved-urn     :urn} (pagestructure "/")]
+             saved-urn     :urn
+             :as           ps} (pagestructure "/")]
 
         (is (= "my root title" saved-title))
-        (is (= "content" saved-content))
+        (is (= "content" ((:content-fn ps))))
         (is (= "/" saved-urn))))))
 
 (deftest porwigle-persistence-tests-update-content
@@ -44,10 +44,10 @@
           ; update with given id
           u (db-operations/update-content! id "updated content")
           ; retrieve page
-          {updated-content :content} (pagestructure "/")]
+          ps (pagestructure "/")]
 
         (is (not (nil? id)))
-        (is (= "updated content" updated-content)))))
+        (is (= "updated content" ((:content-fn ps)))))))
 
 (deftest porwigle-persistence-tests-get-pagestructure
   ; insert root
