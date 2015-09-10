@@ -42,3 +42,9 @@
      :body (json/write-str content
                            :value-fn json-value-reader)
      :headers {"Content-type" "application/json"}}))
+
+(defn
+  update-content
+  [id content]
+  (db-operations/update-content! id content)
+  {:status 204})

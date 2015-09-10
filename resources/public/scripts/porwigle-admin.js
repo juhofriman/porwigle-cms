@@ -93,7 +93,9 @@ var PorwigleStructure = React.createClass({
 var PorwigleTemplateEditor = React.createClass({
   render: function() {
       if(!this.props.template) {
-        return (<div></div>);
+        return (
+          <div></div>
+        );
       }
       return (
         <div>
@@ -115,46 +117,79 @@ var PorwigleTemplateEditor = React.createClass({
 });
 
 var PorwiglePageEditor = React.createClass({
-    render: function() {
-      if(!this.props.page) {
-        return (<div></div>);
-      }
+  handleSaveClick: function() {
+    $.ajax({
+      url: 'http://localhost:8081/_api/content/' + this.props.page.id,
+      method: 'PUT',
+      dataType: 'json',
+      data: {content: this.state.content},
+      cache: false,
+      success: function(data) {
+        // Show ok or something
+        console.log("Updated page: " + this.props.page.id);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+
+  },
+  getInitialState: function() {
+    return {content: ''};
+  },
+  handleContentChange: function(event) {
+    this.setState({content: event.target.value});
+  },
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({
+      content: nextProps.content
+    });
+  },
+  render: function() {
+    if(!this.props.page) {
       return (
-        <div>
-          <ul className="nav nav-tabs" role="tablist">
-            <li role="presentation" className="active"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">Content</a></li>
-            <li role="presentation"><a href="#fields" aria-controls="fields" role="tab" data-toggle="tab">Fields</a></li>
-          </ul>
-          <div className="tab-content">
-            <div role="tabpanel" className="tab-pane active" id="content">
-              <p>This is content in this page.</p>
-              <form role="form">
-                <div className="form-group">
-                    <textarea className="form-control" rows="20" cols="50" value={this.props.content}></textarea>
-                </div>
-              </form>
-            </div>
-            <div role="tabpanel" className="tab-pane" id="fields">
-              <p>These are fields registered to this page.</p>
-              <form role="form">
-                <div className="form-group">
-                  <div className="input-group">
-                    <span className="input-group-addon" id="uri">Title</span>
-                    <input type="text" className="form-control" value={this.props.page.title} aria-describedby="uri"/>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <div className="input-group">
-                    <span className="input-group-addon" id="uri">URI</span>
-                    <input type="text" className="form-control" value={this.props.page.urn} aria-describedby="uri"/>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <div></div>
       );
     }
+    return (
+      <div>
+        <ul className="nav nav-tabs" role="tablist">
+          <li role="presentation" className="active"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">Content</a></li>
+          <li role="presentation"><a href="#fields" aria-controls="fields" role="tab" data-toggle="tab">Fields</a></li>
+        </ul>
+        <div className="tab-content">
+          <div role="tabpanel" className="tab-pane active" id="content">
+            <p>This is content in this page.</p>
+            <form role="form">
+              <div className="form-group">
+                <textarea onChange={this.handleContentChange} className="form-control" rows="20" cols="50" value={this.state.content}></textarea>
+              </div>
+            </form>
+          </div>
+          <div role="tabpanel" className="tab-pane" id="fields">
+            <p>These are fields registered to this page.</p>
+            <form role="form">
+              <div className="form-group">
+                <div className="input-group">
+                  <span className="input-group-addon" id="uri">Title</span>
+                  <input type="text" onChange={this.handleContentChange} className="form-control" value={this.props.page.title} aria-describedby="uri"/>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="input-group">
+                  <span className="input-group-addon" id="uri">URI</span>
+                  <input type="text" onChange={this.handleContentChange} className="form-control" value={this.props.page.urn} aria-describedby="uri"/>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div clasName="btn-group" role="group" aria-label="...">
+            <button type="button" className="btn btn-default" onClick={this.handleSaveClick}>Save</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 });
 
 var Porwigle = React.createClass({

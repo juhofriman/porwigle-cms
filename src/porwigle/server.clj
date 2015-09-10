@@ -12,6 +12,7 @@
   (compojure/GET "/_api/structure" [] (api/get-pagestructure))
   (compojure/GET "/_api/templates" [] (api/get-templates))
   (compojure/GET "/_api/content/:id" [id] (api/get-content id))
+  (compojure/PUT "/_api/content/:id" [id content] (api/update-content id content))
   (compojure/GET "/*" request (public/handle-request request)))
 
 (defn
